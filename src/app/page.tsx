@@ -25,7 +25,7 @@ const isError= input === ""
       <Input type="email" value={input} onChange={handleInputChange} />
       {!isError ? (
         <FormHelperText>
-          Enter the email you'd like to receive the newsletter on.
+          Enter the email you would like to receive the newsletter on.
         </FormHelperText>
       ) : (
         <FormErrorMessage>Email is required.</FormErrorMessage>
