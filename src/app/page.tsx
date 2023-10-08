@@ -19,18 +19,26 @@ export default function Home() {
   const handleEmailChange = (e: any) => setEmail(e.target.value)
   const emailError = email === ''
 
-  const [name, setName] = useState('')
-  const handleNameChange = (e: any) => setName(e.target.value)
-  const nameError = name === ''
+  const [firstName, setFirstName] = useState('')
+  const handleFirstNameChange = (e: any) => setFirstName(e.target.value)
+  const firstNameError = firstName === ''
+
+  const [lastName, setLastName] = useState('')
+  const handleLastNameChange = (e: any) => setLastName(e.target.value)
+  const lastNameError = lastName === ''
+
+  const [gender, setGender] = useState('')
+  const genderChange = (e: any) => setGender(e.target.value)
+  const genderError = gender === ''
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <Container>
 
-        <FormControl isInvalid={nameError}>
-          <FormLabel>Full Name</FormLabel>
-          <Input type="text" value={name} onChange={handleNameChange} />
-          {!nameError ? (
+        <FormControl isInvalid={firstNameError}>
+          <FormLabel>First Name</FormLabel>
+          <Input type="text" value={firstName} onChange={handleFirstNameChange} />
+          {!firstNameError ? (
             <FormHelperText>
               Enter your Name.
             </FormHelperText>
@@ -39,6 +47,17 @@ export default function Home() {
           )}
         </FormControl>
 
+        <FormControl isInvalid={lastNameError}>
+          <FormLabel>Last Name</FormLabel>
+          <Input type="text" value={lastName} onChange={handleLastNameChange} />
+          {!lastNameError ? (
+            <FormHelperText>
+              Enter your Name.
+            </FormHelperText>
+          ) : (
+            <FormErrorMessage>Full Name is required.</FormErrorMessage>
+          )}
+        </FormControl>
 
         <FormControl isInvalid={emailError}>
           <FormLabel>Email</FormLabel>
@@ -52,7 +71,16 @@ export default function Home() {
           )}
         </FormControl>
 
-
+        <FormControl as='fieldset'>
+  <FormLabel as='Select Gender'>
+    Select Gender
+  </FormLabel>
+    <HStack spacing='24px'>
+      <Radio value='Male'>Male</Radio>
+      <Radio value='Female'>Female</Radio>
+      <Radio value='Other'>Other</Radio>
+    </HStack>
+</FormControl>
 
       </Container>
 
