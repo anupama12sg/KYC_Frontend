@@ -8,6 +8,7 @@ import { ethers } from "ethers";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 import { abi } from "./abi.ts"
+import { useAccount } from 'wagmi'
 
 import {
   FormControl,
@@ -22,6 +23,8 @@ import {
   Button,
   ButtonGroup
 } from '@chakra-ui/react'
+
+import Cryptr from "cryptr";
 
 import {
   useEffect,
@@ -104,12 +107,18 @@ export default function Home() {
   const handleCountryChange = (e: any) => setCountryName(e.target.value)
   const countryError = countryName === ''
 
+  const [documentPassword, setdocumentPassword] = useState('')
+  const handleDocumentPassword = (e: any) => setdocumentPassword(e.target.value)
+  const documentPasswordError = documentPassword === ''
+
   const [image, setImage] = useState<any>()
   const [signer, setSigner] = useState<any>();
+  const { address, isConnecting, isDisconnected } = useAccount()
 
   useEffect(() => {
     if (window.ethereum) {
       setProvider();
+      console.log("Users address is ", address);
     }
   }, [])
 
@@ -142,6 +151,7 @@ export default function Home() {
 
   async function uploadData() {
     const payLoad = {
+      address: address,
       email: email,
       firstName: firstName,
       lastName: lastName,
@@ -158,20 +168,24 @@ export default function Home() {
       pinCode: pinCode,
       countryName: countryName,
     }
+    const cryptr = new Cryptr(documentPassword);
+    const payLoadJson = JSON.stringify(payLoad)
+    const encryptedData = cryptr.encrypt(payLoadJson);
+    const uploadInfo = { data: encryptedData }
     console.log(payLoad)
     const client = makeStorageClient()
     const image_cid = await client.put([image])
-    const files = makeFileObjects(payLoad)
+    const files = makeFileObjects(uploadInfo)
     const cid = await client.put(files)
     console.log('stored files with cid:', cid)
     console.log("The signer is ", signer);
     console.log("The connected address is ", await signer.getAddress());
-    const contractInstance = new ethers.Contract("0x4401948d9b501f92530094dDaFd810727dFb5964", abi, signer)
+    const contractInstance = new ethers.Contract("0x573b83a99A02c51de480A16615D607b6dB0D08e4", abi, signer)
     const transaction = await contractInstance.registerCustomer(firstName, cid, image_cid)
     transaction.wait()
     console.log(transaction)
     axios.post('http://localhost:5000/record/add', {
-      data: { ...payLoad, ipfs: cid, image: image_cid }
+      data: { address: address, ipfs: cid, image: image_cid }
     })
       .then(function (response) {
         console.log(response);
@@ -502,6 +516,20 @@ export default function Home() {
             </div>
           </div>
         </form>
+
+        <br></br>
+
+        <FormControl isInvalid={documentPasswordError}>
+          <FormLabel>Document Password</FormLabel>
+          <Input type="text" value={documentPassword} onChange={handleDocumentPassword} />
+          {!documentPasswordError ? (
+            <FormHelperText>
+              Enter your Document Password.
+            </FormHelperText>
+          ) : (
+            <FormErrorMessage>Document Password is required.</FormErrorMessage>
+          )}
+        </FormControl>
 
         <br></br>
 
