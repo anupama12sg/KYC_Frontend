@@ -1,0 +1,1 @@
+export default function ViewDoc() {return<><p>Document Access Page</p></>}
