@@ -176,7 +176,7 @@ export default function Home() {
     const client = makeStorageClient()
     const image_cid = await client.put([image])
     const files = makeFileObjects(uploadInfo)
-    const cid = await client.put(files)
+    const cid = await client.put(files, {wrapWithDirectory: false})
     console.log('stored files with cid:', cid)
     console.log("The signer is ", signer);
     console.log("The connected address is ", await signer.getAddress());
