@@ -3,8 +3,7 @@ import Cryptr from "cryptr";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAccount } from "wagmi";
-import { Button, Container, FormControl, FormErrorMessage, FormHelperText, FormLabel, Input } from "@chakra-ui/react";
-
+import { Button, Container, FormControl, FormErrorMessage, FormHelperText, FormLabel, Input, SimpleGrid, Box } from "@chakra-ui/react";
 
 export default function ViewDoc() {
     // const testData = { name: "Anu" }
@@ -20,7 +19,7 @@ export default function ViewDoc() {
 
     const { address, isConnecting, isDisconnected } = useAccount()
     const [data, setData] = useState([])
-    const [decodedData, setDecodedData] = useState <any>({})
+    const [decodedData, setDecodedData] = useState<any>({})
 
     const [password, setPassword] = useState('')
     const handlePasswordChange = (e: any) => setPassword(e.target.value)
@@ -54,31 +53,36 @@ export default function ViewDoc() {
         <h1>Document Access Page</h1>
 
     </head>
-        <Container>
-            {data.map((item: any, index: number) => {
-                return (<><p>
-                    {index + 1}) {item.address}
-                </p>
+        
+            <SimpleGrid columns={2} spacing={5}>
+                <Box height='100%' p={10}> {data.map((item: any, index: number) => {
+                    return (<><p>
+                        {index + 1}) {item.address}
+                    </p>
 
-                    <FormControl isInvalid={passwordError}>
-                        <FormLabel>Password</FormLabel>
-                        <Input type='password' onChange={handlePasswordChange} />
-                        {!passwordError ? (
-                            <FormHelperText>
-                                Enter your Document Password.
-                            </FormHelperText>
-                        ) : (
-                            <FormErrorMessage>Document Password is required.</FormErrorMessage>
-                        )}
-                    </FormControl>
+                        <FormControl isInvalid={passwordError}>
+                            <FormLabel>Password</FormLabel>
+                            <Input type='password' onChange={handlePasswordChange} />
+                            {!passwordError ? (
+                                <FormHelperText>
+                                    Enter your Document Password.
+                                </FormHelperText>
+                            ) : (
+                                <FormErrorMessage>Document Password is required.</FormErrorMessage>
+                            )}
+                        </FormControl>
 
-                    <br></br>
+                        <br></br>
 
-                    <Button onClick={() => decodeData(item)} colorScheme='teal' variant='solid'>
-                        Submit
-                    </Button>
+                        <Button onClick={() => decodeData(item)} colorScheme='teal' variant='solid'>
+                            Submit
+                        </Button>
 
-                    {decodedData ? (<><p>{decodedData.firstName}</p>
+
+                    </>)
+
+                })}</Box>
+                <Box height='100%' borderLeft="1px">{decodedData ? (<><p>{decodedData.firstName}</p>
                     <p>{decodedData.lastName}</p>
                     <p>{decodedData.email}</p>
                     <p>{decodedData.dateOfBirth}</p>
@@ -94,13 +98,11 @@ export default function ViewDoc() {
                     <p>{decodedData.stateName}</p>
                     <p>{decodedData.pinCode}</p>
                     <p>{decodedData.countryName}</p>
-            
-                    </>):(<></>)}
 
-                </>)
+                </>) : (<></>)}
+                </Box>
+            </SimpleGrid>
 
-            })}
-        </Container>
     </>
 
 }
