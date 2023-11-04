@@ -325,7 +325,7 @@ export default function Home() {
         <br></br>
 
         <FormControl isInvalid={fathersNameError}>
-          <FormLabel>Father's Name</FormLabel>
+          <FormLabel>Father&aposs Name</FormLabel>
           <Input type="Fathers Name" value={fathersName} onChange={handleFathersNameChange} />
           {!fathersNameError ? (
             <FormHelperText>
@@ -339,7 +339,7 @@ export default function Home() {
         <br></br>
 
         <FormControl isInvalid={mothersNameError}>
-          <FormLabel>Mother's Name</FormLabel>
+          <FormLabel>Mother&aposs Name</FormLabel>
           <Input type='Mothers Name' value={mothersName} onChange={handleMothersNameChange} />
           {!mothersNameError ? (
             <FormHelperText>
@@ -353,7 +353,7 @@ export default function Home() {
         <br></br>
 
         <FormControl isInvalid={nomineeNameError}>
-          <FormLabel>Nominee's Name</FormLabel>
+          <FormLabel>Nominee Name</FormLabel>
           <Input type="Nominees Name" value={nomineeName} onChange={handleNomineeNameChange} />
           {!nomineeNameError ? (
             <FormHelperText>
