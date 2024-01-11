@@ -1,7 +1,7 @@
 "use client"
 import Image from 'next/image'
 
-import { Web3Storage } from 'web3.storage'
+import { Web3Storage } from 'web3.storage';
 
 import { ethers } from "ethers";
 
@@ -9,6 +9,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 import { abi } from "./abi.ts"
 import { useAccount } from 'wagmi'
+
 
 import {
   FormControl,
@@ -118,7 +119,7 @@ export default function Home() {
   useEffect(() => {
     if (window.ethereum) {
       setProvider();
-      console.log("Users address is ", address);
+      console.log("Users address is ", address, process.env.WEB3_STORAGE_TOKEN);
     }
   }, [])
 
@@ -128,7 +129,7 @@ export default function Home() {
   }
 
   function makeStorageClient() {
-    return new Web3Storage({ token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGJFMTY3MzE3NDRFMWY5YkJhNjRkMWFiNjNlQkI2MWYxMTYyNDE2NUYiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2OTcyOTY2NjMxNzIsIm5hbWUiOiJLWUMgU3lzdGVtIn0.lj_zaARnMlK1kRZB6LHPH4mPHm8RDjld6zkFAs8MiUo" })
+    return new Web3Storage({ token: `${process.env.WEB3_STORAGE_TOKEN}` })
   }
 
   function makeFileObjects(obj: any) {
@@ -395,7 +396,6 @@ export default function Home() {
               <FormErrorMessage>Street Address is required.</FormErrorMessage>
             )}
           </FormControl>
-
 
 
           <FormControl isInvalid={cityError}>
