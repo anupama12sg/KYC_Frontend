@@ -119,7 +119,7 @@ export default function Home() {
   useEffect(() => {
     if (window.ethereum) {
       setProvider();
-      console.log("Users address is ", address, process.env.WEB3_STORAGE_TOKEN);
+      console.log("Users address is ", address);
     }
   }, [])
 
