@@ -1,15 +1,19 @@
 "use client"
 import Image from 'next/image'
 
+
 import { Web3Storage } from 'web3.storage';
+
 
 import { ethers } from "ethers";
 
+
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-import { abi } from "./abi.ts"
-import { useAccount } from 'wagmi'
 
+import { abi } from "./abi.ts"
+import { useAccount } from 'wagmi';
+import { create } from '@web3-storage/w3up-client'
 
 import {
   FormControl,
@@ -25,13 +29,17 @@ import {
   ButtonGroup
 } from '@chakra-ui/react'
 
+
 import Cryptr from "cryptr";
+
 
 import {
   useEffect,
   useState
 } from "react"
 import axios from 'axios';
+import { ARBITRUM_SEPOLIA_CONTRACT_ADDRESS, BACKEND_DATABASE_POST_ENDPOINT, WEB3_STORAGE_DID } from './constants.ts';
+
 
 declare global {
   interface Window {
@@ -39,26 +47,32 @@ declare global {
   }
 }
 
+
 export default function Home() {
   const [email, setEmail] = useState('')
   const handleEmailChange = (e: any) => setEmail(e.target.value)
   const emailError = email === ''
 
+
   const [firstName, setFirstName] = useState('')
   const handleFirstNameChange = (e: any) => setFirstName(e.target.value)
   const firstNameError = firstName === ''
+
 
   const [lastName, setLastName] = useState('')
   const handleLastNameChange = (e: any) => setLastName(e.target.value)
   const lastNameError = lastName === ''
 
+
   const [dateOfBirth, setdateOfBirth] = useState('')
   const handledateOfBirthChange = (e: any) => setdateOfBirth(e.target.value)
   const dateOfBirthError = dateOfBirth === ''
 
+
   const [nationality, setNationality] = useState('')
   const handleNationalityChange = (e: any) => setNationality(e.target.value)
   const nationalityError = nationality === ''
+
 
   const [gender, setGender] = useState('')
   const genderChange = (e: any) => {
@@ -66,55 +80,69 @@ export default function Home() {
     setGender(e)
   }
 
+
   const genderError = gender === ''
+
 
   const [maritalStatus, setMaritalStatus] = useState('')
   const maritalStatusChange = (e: any) => setMaritalStatus(e)
   const maritalStatusError = maritalStatus === ''
 
+
   const [fathersName, setFathersName] = useState('')
   const handleFathersNameChange = (e: any) => setFathersName(e.target.value)
   const fathersNameError = fathersName === ''
+
 
   const [mothersName, setMothersName] = useState('')
   const handleMothersNameChange = (e: any) => setMothersName(e.target.value)
   const mothersNameError = mothersName === ''
 
+
   const [nomineeName, setNomineeName] = useState('')
   const handleNomineeNameChange = (e: any) => setNomineeName(e.target.value)
   const nomineeNameError = nomineeName === ''
+
 
   const [relationName, setRelationName] = useState('')
   const handleRelationChange = (e: any) => setRelationName(e.target.value)
   const relationError = relationName === ''
 
+
   const [streetName, setStreetName] = useState('')
   const handleStreetChange = (e: any) => setStreetName(e.target.value)
   const streetError = streetName === ''
+
 
   const [cityName, setCityName] = useState('')
   const handleCityChange = (e: any) => setCityName(e.target.value)
   const cityError = cityName === ''
 
+
   const [stateName, setStateName] = useState('')
   const handleStateChange = (e: any) => setStateName(e.target.value)
   const stateError = stateName === ''
+
 
   const [pinCode, setPinCode] = useState('')
   const handlePinCodeChange = (e: any) => setPinCode(e.target.value)
   const pinCodeError = pinCode === ''
 
+
   const [countryName, setCountryName] = useState('')
   const handleCountryChange = (e: any) => setCountryName(e.target.value)
   const countryError = countryName === ''
+
 
   const [documentPassword, setdocumentPassword] = useState('')
   const handleDocumentPassword = (e: any) => setdocumentPassword(e.target.value)
   const documentPasswordError = documentPassword === ''
 
+
   const [image, setImage] = useState<any>()
   const [signer, setSigner] = useState<any>();
   const { address, isConnecting, isDisconnected } = useAccount()
+
 
   useEffect(() => {
     if (window.ethereum) {
@@ -123,107 +151,151 @@ export default function Home() {
     }
   }, [])
 
+
   async function setProvider() {
     const provider = new ethers.providers.Web3Provider(window.ethereum)
     setSigner(provider.getSigner());
   }
 
-  function makeStorageClient() {
-    return new Web3Storage({ token: `${process.env.WEB3_STORAGE_TOKEN}` })
-  }
 
   function makeFileObjects(obj: any) {
-    // You can create File objects from a Blob of binary data
-    // see: https://developer.mozilla.org/en-US/docs/Web/API/Blob
-    // Here we're just storing a JSON object, but you can store images,
-    // audio, or whatever you want!
     const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' })
-
-    const files = [
-      new File([blob], 'kyc.json')
-    ]
-    return files
+    // const files = [
+    //   new File([blob], 'kyc.json')
+    // ]
+    return new File([blob], 'kyc.json')
   }
+
 
   function handleImage(e: any) {
     console.log(e)
     setImage(e.target.files[0])
   }
 
-  async function uploadData() {
-    const payLoad = {
-      address: address,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      dateOfBirth: dateOfBirth,
-      nationality: nationality,
-      gender: gender,
-      maritalStatus: maritalStatus,
-      fathersName: fathersName,
-      mothersName: mothersName,
-      nomineeName: nomineeName,
-      relationName: relationName,
-      streetName: streetName,
-      cityName: cityName,
-      pinCode: pinCode,
-      countryName: countryName,
+
+  async function storeOnIpfs(file: File): Promise<string> {
+    try {
+      const client = await create();
+      const myAccount = await client.login("anupama12sg@gmail.com");
+      await client.setCurrentSpace(WEB3_STORAGE_DID);
+      const cid = await client.uploadFile(file);
+      return cid.toString();
+    } catch (error) {
+      console.log(`Error in storing data to IPFS ${error}`);
+      throw new Error('Error in storing data to IPFS');
     }
-    const cryptr = new Cryptr(documentPassword);
-    const payLoadJson = JSON.stringify(payLoad)
-    const encryptedData = cryptr.encrypt(payLoadJson);
-    const uploadInfo = { data: encryptedData }
-    console.log(payLoad)
-    const client = makeStorageClient()
-    const image_cid = await client.put([image])
-    const files = makeFileObjects(uploadInfo)
-    const cid = await client.put(files, {wrapWithDirectory: false})
-    console.log('stored files with cid:', cid)
-    console.log("The signer is ", signer);
-    console.log("The connected address is ", await signer.getAddress());
-    const contractInstance = new ethers.Contract("0x573b83a99A02c51de480A16615D607b6dB0D08e4", abi, signer)
-    const transaction = await contractInstance.registerCustomer(firstName, cid, image_cid)
-    transaction.wait()
-    console.log(transaction)
-    axios.post('http://localhost:5000/record/add', {
-      data: { address: address, ipfs: cid, image: image_cid }
-    })
-      .then(function (response) {
-        console.log(response);
-        setEmail("")
-        setCityName("")
-        setCountryName("")
-        setFathersName("")
-        setFirstName("")
-        setGender("")
-        setLastName("")
-        setMothersName("")
-        setNationality("")
-        setNomineeName("")
-        setPinCode("")
-        setRelationName("")
-        setStateName("")
-        setStreetName("")
-        setdateOfBirth("")
-        setMaritalStatus("")
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
   }
+
+
+  async function sendToContract(file_cid: string, image_cid: string) {
+    try {
+      const contractInstance = new ethers.Contract(ARBITRUM_SEPOLIA_CONTRACT_ADDRESS, abi, signer)
+      const transaction = await contractInstance.registerCustomer(firstName, file_cid, image_cid)
+      transaction.wait()
+      console.log(transaction)
+      return transaction;
+    } catch (error) {
+      console.log(`Error in contract transaction ${error}`);
+      throw new Error('Error in contract transaction');
+    }
+  }
+
+
+  async function sendToDB(file_cid: string, image_cid: string) {
+    try {
+      axios.post(BACKEND_DATABASE_POST_ENDPOINT, {
+        data: { address: address, ipfs: file_cid, image: image_cid }
+      })
+        .then(function (response) {
+          console.log(response);
+          setEmail("")
+          setCityName("")
+          setCountryName("")
+          setFathersName("")
+          setFirstName("")
+          setGender("")
+          setLastName("")
+          setMothersName("")
+          setNationality("")
+          setNomineeName("")
+          setPinCode("")
+          setRelationName("")
+          setStateName("")
+          setStreetName("")
+          setdateOfBirth("")
+          setMaritalStatus("")
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    } catch (error) {
+      console.log(`Error in posting transaction to Database ${error}`);
+      throw new Error('Error in posting data to Database');
+    }
+  }
+
+
+  async function uploadData() {
+    try {
+      const payLoad = {
+        address: address,
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+        dateOfBirth: dateOfBirth,
+        nationality: nationality,
+        gender: gender,
+        maritalStatus: maritalStatus,
+        fathersName: fathersName,
+        mothersName: mothersName,
+        nomineeName: nomineeName,
+        relationName: relationName,
+        streetName: streetName,
+        cityName: cityName,
+        pinCode: pinCode,
+        countryName: countryName,
+      }
+      const cryptr = new Cryptr(documentPassword);
+      const payLoadJson = JSON.stringify(payLoad)
+      const encryptedData = cryptr.encrypt(payLoadJson);
+      const uploadInfo = { data: encryptedData }
+      console.log(payLoad)
+      // client = makeStorageClient()
+      const image_cid = await storeOnIpfs(new File([image], "image"));
+      const files = makeFileObjects(uploadInfo)
+      const file_cid = await storeOnIpfs(files);
+
+
+      console.log('stored files with cid:', file_cid.toString())
+      console.log("The signer is ", signer);
+      console.log("The connected address is ", await signer.getAddress());
+
+
+      const transaction = await sendToContract(file_cid, image_cid);
+      const db = await sendToDB(file_cid, image_cid);
+    } catch (error) {
+      console.log(error);
+      throw new Error('Error in uploading data');
+    }
+  }
+
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <Container>
 
+
         <head>
           <title>KYC Form</title>
+
 
           <h1>KYC Form</h1>
           <p>Identification Details:</p>
         </head>
 
+
         <div className="connectbutton"><ConnectButton /></div>
+
 
         <FormControl isInvalid={firstNameError}>
           <FormLabel>First Name</FormLabel>
@@ -249,7 +321,9 @@ export default function Home() {
           )}
         </FormControl>
 
+
         <br></br>
+
 
         <FormControl isInvalid={emailError}>
           <FormLabel>Email</FormLabel>
@@ -263,7 +337,9 @@ export default function Home() {
           )}
         </FormControl>
 
+
         <br></br>
+
 
         <FormControl isInvalid={dateOfBirthError}>
           <FormLabel>Date of Birth</FormLabel>
@@ -277,7 +353,9 @@ export default function Home() {
           )}
         </FormControl>
 
+
         <br></br>
+
 
         <FormControl isInvalid={nationalityError}>
           <FormLabel>Nationality</FormLabel>
@@ -291,7 +369,9 @@ export default function Home() {
           )}
         </FormControl>
 
+
         <br></br>
+
 
         <FormControl as='fieldset'>
           <FormLabel as='legend'>
@@ -306,9 +386,11 @@ export default function Home() {
           </RadioGroup>
         </FormControl>
 
+
         <br></br>
 
-        <FormControl as='fieldset'>
+
+       <FormControl as='fieldset'>
           <FormLabel as='legend'>
             Marital Status
           </FormLabel>
@@ -397,7 +479,6 @@ export default function Home() {
             )}
           </FormControl>
 
-
           <FormControl isInvalid={cityError}>
             <FormLabel>City</FormLabel>
             <Input
@@ -413,8 +494,6 @@ export default function Home() {
             )}
           </FormControl>
 
-
-
           <FormControl isInvalid={stateError}>
             <FormLabel>State</FormLabel>
             <Input
@@ -429,8 +508,6 @@ export default function Home() {
               <FormErrorMessage>State is required.</FormErrorMessage>
             )}
           </FormControl>
-
-
 
           <FormControl isInvalid={pinCodeError}>
             <FormLabel>Pin Code</FormLabel>
@@ -448,7 +525,6 @@ export default function Home() {
           </FormControl>
 
           <br>
-
 
           </br>
 
@@ -490,18 +566,16 @@ export default function Home() {
             </div>
           </>
         ) : (<></>)}
-
         <br></br>
 
         <form>
-
 
           <div className="declaration-container">
             <label htmlFor="declaration">Declaration:</label>
             <textarea
               id="declaration"
               name="declaration"
-              rows="4"
+              rows={4}
             ></textarea>
 
             <br></br>
@@ -530,15 +604,11 @@ export default function Home() {
             <FormErrorMessage>Document Password is required.</FormErrorMessage>
           )}
         </FormControl>
-
         <br></br>
-
         <Button onClick={uploadData} colorScheme='teal' variant='solid'>
           Submit
         </Button>
       </Container>
-
     </main >
   )
-
 }

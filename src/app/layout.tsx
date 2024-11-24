@@ -10,13 +10,13 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import {
-  polygonMumbai
+  arbitrumSepolia
 } from 'wagmi/chains';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 
 const { chains, publicClient } = configureChains(
-  [polygonMumbai],
+  [arbitrumSepolia],
   [
     publicProvider()
   ]
