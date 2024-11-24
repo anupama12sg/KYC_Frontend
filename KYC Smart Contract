@@ -1,0 +1,88 @@
+// SPDX-License-Identifier: MIT
+// Specify the license for the contract
+
+pragma solidity ^0.8.0;
+
+// Define the KYC (Know Your Customer) contract
+contract KYC {
+    address public owner;
+
+    // Define a struct to represent a customer's information
+    struct Customer {
+        bool isRegistered; // Flag indicating if the customer is registered
+        string name; // Customer's name
+        string idDocumentHash; // Hash of customer's KYC document
+        address createdBy; // Address of the user who registered the customer
+        string imageHash;
+    }
+
+    // Create a mapping to store customer information by their Ethereum addresses
+    mapping(address => Customer) public customers;
+
+    // Define events to log important contract actions
+    event CustomerRegistered(address indexed customerAddress, string name);
+    event CustomerUpdated(address indexed customerAddress, string name);
+
+    // Constructor to set the contract owner
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // Modifier to restrict access to only the contract owner
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function");
+        _;
+    }
+
+    // Function to register a new customer
+    function registerCustomer(
+        string memory _name,
+        string memory _idDocumentHash,
+        string memory _imageHash
+    ) external {
+    
+        // Create a new Customer struct and store it in the mapping
+        customers[msg.sender] = Customer({
+            isRegistered: true,
+            name: _name,
+            idDocumentHash: _idDocumentHash,
+            createdBy: msg.sender,
+            imageHash: _imageHash
+        });
+
+        // Emit an event to log the registration of the customer
+        emit CustomerRegistered(msg.sender, _name);
+    }
+
+    // Function to update customer details (restricted to the contract owner)
+    function updateCustomer(string memory _name, string memory _idDocumentHash)
+        external
+        onlyOwner
+    {
+        require(
+            customers[msg.sender].isRegistered,
+            "Customer is not registered"
+        );
+
+        // Update the customer's name and ID document hash
+        customers[msg.sender].name = _name;
+        customers[msg.sender].idDocumentHash = _idDocumentHash;
+
+        // Emit an event to log the update of customer details
+        emit CustomerUpdated(msg.sender, _name);
+    }
+
+    // Function to view customer information
+    function viewCustomer(address _customerAddress)
+        external
+        view
+        returns (
+            bool,
+            string memory,
+            address
+        )
+    {
+        Customer memory customer = customers[_customerAddress];
+        return (customer.isRegistered, customer.name, customer.createdBy);
+    }
+}
